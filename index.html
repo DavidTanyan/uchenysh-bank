@@ -1,0 +1,190 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Ученыш Банк</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Manrope:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<button class="support-fab" id="openSupportModal">🛟 Техподдержка</button>
+
+<div class="modal-overlay" id="supportModalOverlay" hidden>
+  <div class="modal">
+    <h2>🛟 Техподдержка</h2>
+    <p>Если возникли вопросы по работе Ученыш Банка, обратитесь:</p>
+    <div style="display:flex;flex-direction:column;gap:10px;">
+      <div class="support-contact">
+        <strong>Администрация</strong>
+        <span>Гоар Амаяковна</span>
+      </div>
+      <div class="support-contact">
+        <strong>Завуч</strong>
+        <span>Анастасия Сергеевна</span>
+      </div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn primary full" id="closeSupportModal">Понятно</button>
+    </div>
+  </div>
+</div>
+
+<div class="setup-wrap" id="fatalError" hidden>
+  <div class="setup-card">
+    <h1>🪙 Ученыш Банк</h1>
+    <p id="fatalErrorText" style="color:var(--negative);"></p>
+    <button class="btn primary full" onclick="location.reload()">Обновить страницу</button>
+  </div>
+</div>
+
+<!-- ================= first-run setup screen ================= -->
+<div class="setup-wrap" id="setupScreen" hidden>
+  <div class="setup-card">
+    <div style="display:flex;flex-direction:column;align-items:center;gap:8px;text-align:center;">
+      <img class="school-logo" src="assets/logo.png" alt="STEMLAB" onerror="this.style.display='none'" style="width:76px;height:76px;">
+      <p class="brand-eyebrow">STEMLAB TBILISI</p>
+      <h1>🪙 Ученыш Банк</h1>
+    </div>
+    <p>Банк ещё не создан. Придумайте пароль учителя — появится общее хранилище с вашими 96 учениками (классы 1–11). Дальше просто присылайте всем эту же ссылку на сайт — все, кто её откроет, будут видеть одни и те же счета.</p>
+    <label>Ваше имя (будет видно в истории операций)
+      <input id="setupName" type="text" placeholder="Например, Мария Ивановна" maxlength="40" autocomplete="name">
+    </label>
+    <label>Пароль учителя (для начислений и списаний)
+      <input id="setupPassword" type="text" placeholder="Например, stemlab2026" maxlength="40">
+    </label>
+    <button class="btn primary full" id="setupCreateBtn">Создать общий банк</button>
+    <p id="setupError" class="tx-error" hidden></p>
+  </div>
+</div>
+
+<!-- ================= main app ================= -->
+<div class="app" id="mainApp" hidden>
+  <header class="topbar">
+    <div class="brand">
+      <img class="school-logo" src="assets/logo.png" alt="STEMLAB" onerror="this.style.display='none'">
+      <div>
+        <p class="brand-eyebrow">STEMLAB TBILISI</p>
+        <h1>🪙 Ученыш Банк</h1>
+        <p class="brand-sub">Начисления и списания по классам 1–11</p>
+      </div>
+    </div>
+    <div class="stats">
+      <div class="stat">
+        <span class="stat-value mono" id="statAccounts">0</span>
+        <span class="stat-label" id="statAccountsLabel">счетов</span>
+      </div>
+      <div class="stat">
+        <span class="stat-value mono" id="statTotal">0</span>
+        <span class="stat-label" id="statTotalLabel">в обороте</span>
+      </div>
+    </div>
+  </header>
+
+  <p class="mode-banner" id="modeBanner" hidden></p>
+
+  <div class="controls">
+    <div class="grades" id="grades"></div>
+    <div class="right-controls">
+      <button class="lock-btn" id="leaderboardBtn">🏆 Рейтинг</button>
+      <button class="lock-btn icon-btn" id="soundToggle" title="Звук">🔊</button>
+      <button class="lock-btn" id="lockBtn">🔒 Режим учителя</button>
+      <div class="search-wrap">
+        <input type="search" id="searchInput" placeholder="Найти ученика…" autocomplete="off">
+      </div>
+    </div>
+  </div>
+
+  <main class="grid" id="accountsGrid"></main>
+  <div class="empty-state" id="emptyState" hidden>
+    <p>Здесь пока пусто</p>
+    <p>Откройте первый счёт кнопкой «Открыть счёт»</p>
+  </div>
+</div>
+
+<button class="fab" id="openAddModal" hidden>＋ Открыть счёт</button>
+
+<div class="modal-overlay" id="addModalOverlay" hidden>
+  <div class="modal">
+    <h2>Новый счёт</h2>
+    <label>Имя ученика
+      <input id="newName" type="text" placeholder="Например, Ника Гогилашвили" maxlength="60">
+    </label>
+    <label>Класс
+      <select id="newGrade"></select>
+    </label>
+    <div class="modal-actions">
+      <button class="btn ghost" id="cancelAdd">Отмена</button>
+      <button class="btn primary" id="confirmAdd">Открыть счёт</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="txModalOverlay" hidden>
+  <div class="modal">
+    <div class="tx-head">
+      <div class="avatar" id="txAvatar"></div>
+      <div>
+        <h2 id="txName"></h2>
+        <p class="tx-balance">Баланс: <span id="txBalance" class="mono"></span></p>
+      </div>
+    </div>
+    <div class="tx-type-toggle">
+      <button class="tx-type" data-type="deposit" id="txTypeDeposit">Начислить</button>
+      <button class="tx-type" data-type="withdraw" id="txTypeWithdraw">Снять</button>
+    </div>
+    <div class="chip-row" id="chipRow"></div>
+    <label>Сумма
+      <input id="txAmount" type="number" min="1" step="1" inputmode="numeric" placeholder="0">
+    </label>
+    <p class="tx-error" id="txError" hidden></p>
+    <label>Комментарий (необязательно)
+      <input id="txNote" type="text" placeholder="За что начислено или списано" maxlength="80">
+    </label>
+    <div class="chip-row" id="commentChipRow" hidden></div>
+    <div class="modal-actions">
+      <button class="btn ghost" id="cancelTx">Отмена</button>
+      <button class="btn primary" id="confirmTx">Подтвердить</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="pinModalOverlay" hidden>
+  <div class="modal">
+    <h2>Вход для учителя</h2>
+    <label>Ваше имя (будет видно в истории операций)
+      <input id="loginName" type="text" placeholder="Например, Мария Ивановна" maxlength="40" autocomplete="name">
+    </label>
+    <label>Пароль учителя
+      <div class="password-field">
+        <input id="loginPassword" type="password" placeholder="Пароль" autocomplete="current-password">
+        <button type="button" class="password-toggle" id="loginPasswordToggle" title="Показать пароль">👁</button>
+      </div>
+    </label>
+    <p class="tx-error" id="pinError" hidden></p>
+    <div class="modal-actions">
+      <button class="btn ghost" id="cancelPin">Отмена</button>
+      <button class="btn primary" id="confirmPin">Войти</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="leaderboardModalOverlay" hidden>
+  <div class="modal leaderboard-modal">
+    <h2>🏆 Рейтинг</h2>
+    <div class="grades" id="leaderboardGrades"></div>
+    <ol class="leaderboard-list" id="leaderboardList"></ol>
+    <div class="modal-actions">
+      <button class="btn ghost full" id="closeLeaderboard">Закрыть</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast-container" id="toastContainer"></div>
+
+<script src="js/app.js"></script>
+</body>
+</html>
